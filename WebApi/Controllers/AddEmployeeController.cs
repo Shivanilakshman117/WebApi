@@ -78,5 +78,13 @@ namespace WebApi.Controllers
             messenger.Send(mail);
             messenger.Dispose();
         }
+
+        [HttpPost]
+        [Route("api / AddEmployee / newemployee / VerifyAccount")]
+        public IHttpActionResult VerifyAccount(User newEmp)
+        {
+            return Ok("HI");
+        }
     }
+   
 }
