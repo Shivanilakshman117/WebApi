@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="3c506ad6df7344629fb36e6062616a37" Name="Diagram1">
+        <EntityTypeShape EntityType="PsiogModel.AttendanceTransaction" Width="1.5" PointX="3" PointY="7" IsExpanded="true" />
+        <EntityTypeShape EntityType="PsiogModel.Department" Width="1.5" PointX="0.75" PointY="6" IsExpanded="true" />
+        <EntityTypeShape EntityType="PsiogModel.Designation" Width="1.5" PointX="0.75" PointY="14.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="PsiogModel.Designation_History" Width="1.5" PointX="3" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="PsiogModel.Employee" Width="1.5" PointX="0.75" PointY="8.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="PsiogModel.EmployeeLeaveAvaliability" Width="1.5" PointX="6" PointY="9.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="PsiogModel.LeaveApplication" Width="1.5" PointX="6" PointY="5.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="PsiogModel.LeaveType" Width="1.5" PointX="3.75" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="PsiogModel.ReportingAuthority" Width="1.5" PointX="5.25" PointY="14.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="PsiogModel.sysdiagram" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="PsiogModel.User" Width="1.5" PointX="3" PointY="22.75" IsExpanded="true" />
+        <AssociationConnector Association="PsiogModel.AttendanceTransaction_Employee" ManuallyRouted="false" />
+        <AssociationConnector Association="PsiogModel.Employee_Designation_Department_Department" ManuallyRouted="false" />
+        <AssociationConnector Association="PsiogModel.Employee_Designation_Department_Designation" ManuallyRouted="false" />
+        <AssociationConnector Association="PsiogModel.Employee_Designation_Department_Employee" ManuallyRouted="false" />
+        <AssociationConnector Association="PsiogModel.EmployeeLeaveAvaliability_Employee" ManuallyRouted="false" />
+        <AssociationConnector Association="PsiogModel.LeaveApplication_Employee" ManuallyRouted="false" />
+        <AssociationConnector Association="PsiogModel.ReportingAuthority_Employee" ManuallyRouted="false" />
+        <AssociationConnector Association="PsiogModel.User_Employee" ManuallyRouted="false" />
+        <AssociationConnector Association="PsiogModel.EmployeeLeaveAvaliability_LeaveMaster" ManuallyRouted="false" />
+        <AssociationConnector Association="PsiogModel.LeaveApplication_Leave" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="PsiogModel.Manager" Width="1.5" PointX="3" PointY="14.125" />
+        <AssociationConnector Association="PsiogModel.Managers_Employee" />
+        <AssociationConnector Association="PsiogModel.FK_ReportingAuthority_Managers" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
