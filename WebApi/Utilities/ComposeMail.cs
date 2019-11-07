@@ -39,5 +39,35 @@ namespace WebApi.Utilities
 
             return mail;
         }
+        public static MailMessage SendResetLink(string emailID, out SmtpClient messenger)
+        {
+            var fromEmail = new MailAddress("techxems@gmail.com", "EMS Portal");
+            var toEmail = new MailAddress("techxems@gmail.com");
+            var fromEmailPassword = "Psiog@123";
+            string subject = "";
+            string body = "";
+            subject = "Psiog EMS Portal: Request For Reset Password";
+            body = "Dear Associate,<br/><br/>\nWe heard that you lost your EMS Portal password. You can use the following link to reset your password:" +
+                    "<br/><br/><a href=";
+
+            messenger = new SmtpClient
+            {
+                Host = "smtp.gmail.com",
+                Port = 587,
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(fromEmail.Address, fromEmailPassword)
+            };
+
+            var mail = new MailMessage(fromEmail, toEmail)
+            {
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            };
+
+            return mail;
+        }
     }
 }

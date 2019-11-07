@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
 using System.Web;
+using WebApi.Helpers;
 using WebApi.Models;
 
 namespace WebApi.Utilities
@@ -16,6 +17,9 @@ namespace WebApi.Utilities
             {
                 using (PsiogEntities PE = new PsiogEntities())
                 {
+
+                    var max = PE.Employees.Max(m=>m.Id);
+                    e.EmployeeId = "P" + max.ToString();
                     PE.Employees.Add(e);
 
                     PE.SaveChanges();
@@ -90,7 +94,89 @@ namespace WebApi.Utilities
 
         }
 
-       
+        public static string VerifyUserAccount(string id, VerifyUser verifyEmp)
+        {
+            PsiogEntities PE = new PsiogEntities();
+
+            var user = PE.Users.Where(u => u.EmployeeId == id).FirstOrDefault();
+            user.Password = Hasher.HashString(verifyEmp.password);
+            user.SecurityQuestion = verifyEmp.securityQuestion;
+            user.Answer = verifyEmp.answer;
+            try
+            {
+                
+                PE.SaveChanges();
+                return "Verified Successfully!";
+            }
+            catch (Exception E)
+            {
+                ExceptionLog.Logger(E);
+                return "Unable to verify user";
+            }
+        }
+
+        public static string ResetPassword(string password,string id)
+        {
+            PsiogEntities PE = new PsiogEntities();
+
+            var user = PE.Users.Where(u => u.EmployeeId == id).FirstOrDefault();
+            user.Password = Hasher.HashString(password);
+          
+            try
+            {
+               
+                PE.SaveChanges();
+                return "Updated password successfully";
+            }
+            catch (Exception E)
+            {
+                ExceptionLog.Logger(E);
+                return "Unable to update password. Please try again";
+            }
+        }
+
+        public static string ApplyLeave(LeaveApplication leave)
+        {
+            PsiogEntities PE = new PsiogEntities();
+            var leaveBalance = PE.EmployeeLeaveAvaliabilities.Where(emp => emp.EmployeeId == leave.EmployeeId && emp.LeaveTypeId == leave.LeaveId).FirstOrDefault();
+
+
+            decimal availedDays = (leave.ToDate.Subtract(leave.FromDate)).Days;
+            if (leave.FromSession == leave.ToSession)
+                availedDays = availedDays + 0.5M;
+            decimal balance = leaveBalance.AllocatedDays - leaveBalance.AvailedDays;
+            if (availedDays <= balance)
+            {
+                leave.Status = "Applied";
+                PE.LeaveApplications.Add(leave);
+                leaveBalance.AvailedDays = availedDays;
+                PE.SaveChanges();
+                return "Leave Application Submitted! Waiting For Approval";
+            }
+
+            else
+            {
+                return "You do not have enough leave balance";
+            }
+        }
+        public static decimal CheckBalance(LeaveApplication leave)
+            {
+            PsiogEntities PE = new PsiogEntities();
+            var leaveBalance = PE.EmployeeLeaveAvaliabilities.Where(emp => emp.EmployeeId == leave.EmployeeId && emp.LeaveTypeId == leave.LeaveId).FirstOrDefault();
+
+
+            decimal availedDays = (leave.ToDate.Subtract(leave.FromDate)).Days;
+            if (leave.FromSession == leave.ToSession)
+                availedDays = availedDays + 0.5M;
+            decimal balance = leaveBalance.AllocatedDays - leaveBalance.AvailedDays;
+            return balance;
+
+        }
+        
+
     }
+    
+
+   
 }
 

@@ -24,41 +24,49 @@ namespace WebApi
             string message = DBOperations.ValidateLogin(context.UserName, context.Password, out User user);
 
 
-            PsiogEntities PE = new PsiogEntities();
-           
-            if(user!=null)
+            using (PsiogEntities PE = new PsiogEntities())
             {
-                identity.AddClaim(new Claim(ClaimTypes.Role, user.Role));
-
-                var result= from logger in PE.Users
-                join  employee in PE.Employees on logger.EmployeeId equals employee.EmployeeId
-                select new { username= employee.Name,
-                             employeeid= employee.EmployeeId};
-
-                foreach(var l in result)
+                if (user != null)
                 {
-                    if(l.employeeid==user.EmployeeId)
+                    identity.AddClaim(new Claim(ClaimTypes.Role, user.Role));
+
+                    var result = from logger in PE.Users
+                                 join employee in PE.Employees on logger.EmployeeId equals employee.EmployeeId
+                                 select new
+                                 {
+                                     username = employee.Name,
+                                     employeeid = employee.EmployeeId
+                                 };
+
+                    foreach (var l in result)
                     {
-                        identity.AddClaim(new Claim("username", l.username));
-                        identity.AddClaim(new Claim(ClaimTypes.Name, l.username));
-                        context.Validated(identity);
+                        if (l.employeeid == user.EmployeeId)
+                        {
+                            identity.AddClaim(new Claim("username", l.username));
+                            identity.AddClaim(new Claim(ClaimTypes.Name, l.username));
+                            context.Validated(identity);
+
+                        }
+                        else
+                        {
+                            context.SetError(message);
+                        }
 
                     }
-                    else
-                    {
-                        context.SetError("Invalid grant", message);
-                    }
+
+
+
 
                 }
-              
-
-
-
+                else
+                {
+                    context.SetError(message);
+                }
             }
 
-           
-           
-           
+
+
+
         }
     }
 }

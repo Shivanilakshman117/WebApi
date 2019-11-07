@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Mail;
 using System.Web;
 using System.Web.Http;
+using WebApi.Helpers;
 using WebApi.Models;
 using WebApi.Utilities;
 
@@ -67,23 +68,27 @@ namespace WebApi.Controllers
         }
         public void  CompleteRegistration(Employee newEmp)
         {
-            PsiogEntities PE = new PsiogEntities();
-            
-            string VerificationCode = Guid.NewGuid().ToString();
-            var link = HttpContext.Current.Request.Url.AbsoluteUri + "/VerifyAccount";
-            var mail = ComposeMail.CompleteRegistration("techxems@gmail.com", VerificationCode, out SmtpClient messenger);
-            var account = PE.Users.Where(a => a.EmployeeId == newEmp.EmployeeId).FirstOrDefault();
-            account.VerificationCode = VerificationCode;
-            mail.Body += link + ">Click here to complete registration</a>";
-            messenger.Send(mail);
-            messenger.Dispose();
+            using (PsiogEntities PE = new PsiogEntities())
+            {
+                string VerificationCode = Guid.NewGuid().ToString();
+                var link = HttpContext.Current.Request.Url.AbsoluteUri + "/VerifyAccount/" + newEmp.EmployeeId;
+                var mail = ComposeMail.CompleteRegistration("techxems@gmail.com", VerificationCode, out SmtpClient messenger);
+                var account = PE.Users.Where(a => a.EmployeeId == newEmp.EmployeeId).FirstOrDefault();
+                account.VerificationCode = VerificationCode;
+                mail.Body += link + ">Click here to complete registration</a>";
+                messenger.Send(mail);
+                messenger.Dispose();
+            }
         }
 
         [HttpPost]
-        [Route("api / AddEmployee / newemployee / VerifyAccount")]
-        public IHttpActionResult VerifyAccount(User newEmp)
+        [Route("api/AddEmployee/newemployee/VerifyAccount/{id=id}")]
+        public IHttpActionResult VerifyAccount(string id, VerifyUser verifyEmp)
         {
-            return Ok("HI");
+
+            string message = DBOperations.VerifyUserAccount(id, verifyEmp);
+            return Ok(message); 
+           
         }
     }
    

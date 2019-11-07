@@ -149,10 +149,15 @@
     <Compile Include="AuthorizationServerProvider.cs" />
     <Compile Include="Authorizer.cs" />
     <Compile Include="Controllers\AddEmployeeController.cs" />
+    <Compile Include="Controllers\LeaveController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ForgotPassword.cs" />
+    <Compile Include="Helpers\UpdatePassword.cs" />
+    <Compile Include="Helpers\VerifyUser.cs" />
     <Compile Include="Models\AttendanceTransaction.cs">
       <DependentUpon>DataModels.tt</DependentUpon>
     </Compile>
@@ -231,7 +236,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
