@@ -23,6 +23,8 @@ namespace WebApi.Models
         public string Status { get; set; }
         public string EmployeeId { get; set; }
         public int LeaveId { get; set; }
+        public string SendTo { get; set; }
+        public string CCTo { get; set; }
     
         public virtual Employee Employee { get; set; }
         public virtual LeaveType LeaveType { get; set; }

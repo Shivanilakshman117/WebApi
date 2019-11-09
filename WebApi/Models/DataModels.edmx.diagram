@@ -29,6 +29,7 @@
         <EntityTypeShape EntityType="PsiogModel.Manager" Width="1.5" PointX="3" PointY="14.125" />
         <AssociationConnector Association="PsiogModel.Managers_Employee" />
         <AssociationConnector Association="PsiogModel.FK_ReportingAuthority_Managers" />
+        <EntityTypeShape EntityType="PsiogModel.Holiday" Width="1.5" PointX="3.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -66,6 +66,14 @@
           <Property Name="AllocatedDays" Type="decimal" Precision="4" Scale="2" Nullable="false" />
           <Property Name="AvailedDays" Type="decimal" Precision="4" Scale="2" Nullable="false" />
         </EntityType>
+        <EntityType Name="Holidays">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Date" Type="date" Nullable="false" />
+          <Property Name="Occasion" Type="varchar" MaxLength="50" />
+        </EntityType>
         <EntityType Name="LeaveApplication">
           <Key>
             <PropertyRef Name="LeaveApplicationId" />
@@ -79,6 +87,8 @@
           <Property Name="Status" Type="varchar" MaxLength="10" Nullable="false" />
           <Property Name="EmployeeId" Type="varchar" MaxLength="10" Nullable="false" />
           <Property Name="LeaveId" Type="int" Nullable="false" />
+          <Property Name="SendTo" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="CCTo" Type="varchar" MaxLength="10" Nullable="false" />
         </EntityType>
         <EntityType Name="LeaveTypes">
           <Key>
@@ -283,6 +293,7 @@
           <EntitySet Name="Designation_History" EntityType="Self.Designation_History" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Employee" EntityType="Self.Employee" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="EmployeeLeaveAvaliability" EntityType="Self.EmployeeLeaveAvaliability" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Holidays" EntityType="Self.Holidays" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="LeaveApplication" EntityType="Self.LeaveApplication" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="LeaveTypes" EntityType="Self.LeaveTypes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Managers" EntityType="Self.Managers" Schema="dbo" store:Type="Tables" />
@@ -433,6 +444,8 @@
           <Property Name="LeaveId" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Employee" Relationship="Self.LeaveApplication_Employee" FromRole="LeaveApplication" ToRole="Employee" />
           <NavigationProperty Name="LeaveType" Relationship="Self.LeaveApplication_Leave" FromRole="LeaveApplication" ToRole="LeaveTypes" />
+          <Property Name="SendTo" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CCTo" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="LeaveType">
           <Key>
@@ -665,6 +678,7 @@
             <End Role="Manager" EntitySet="Managers" />
             <End Role="ReportingAuthority" EntitySet="ReportingAuthorities" />
           </AssociationSet>
+          <EntitySet Name="Holidays" EntityType="PsiogModel.Holiday" />
         </EntityContainer>
         <EntityType Name="Manager">
           <Key>
@@ -699,6 +713,14 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="Holiday">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Occasion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -775,6 +797,8 @@
           <EntitySetMapping Name="LeaveApplications">
             <EntityTypeMapping TypeName="PsiogModel.LeaveApplication">
               <MappingFragment StoreEntitySet="LeaveApplication">
+                <ScalarProperty Name="CCTo" ColumnName="CCTo" />
+                <ScalarProperty Name="SendTo" ColumnName="SendTo" />
                 <ScalarProperty Name="LeaveApplicationId" ColumnName="LeaveApplicationId" />
                 <ScalarProperty Name="FromDate" ColumnName="FromDate" />
                 <ScalarProperty Name="ToDate" ColumnName="ToDate" />
@@ -835,6 +859,15 @@
             <EntityTypeMapping TypeName="PsiogModel.Manager">
               <MappingFragment StoreEntitySet="Managers">
                 <ScalarProperty Name="ManagerId" ColumnName="ManagerId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Holidays">
+            <EntityTypeMapping TypeName="PsiogModel.Holiday">
+              <MappingFragment StoreEntitySet="Holidays">
+                <ScalarProperty Name="Occasion" ColumnName="Occasion" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
