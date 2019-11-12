@@ -15,7 +15,10 @@ namespace WebApi.Models
     public partial class Holiday
     {
         public int Id { get; set; }
-        public System.DateTime Date { get; set; }
         public string Occasion { get; set; }
+        public string Day { get; set; }
+        public string Month { get; set; }
+        public int Year { get; set; }
+        public System.DateTime Date { get; set; }
     }
 }

@@ -54,7 +54,7 @@
           <Property Name="DOQ" Type="date" />
           <Property Name="Address" Type="varchar" MaxLength="255" />
           <Property Name="BloodType" Type="varchar" MaxLength="5" Nullable="false" />
-          <Property Name="IsManager" Type="char" MaxLength="1" Nullable="false" />
+          <Property Name="IsManager" Type="char" MaxLength="10" Nullable="false" />
         </EntityType>
         <EntityType Name="EmployeeLeaveAvaliability">
           <Key>
@@ -71,8 +71,11 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Occasion" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Day" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="Month" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="Year" Type="int" Nullable="false" />
           <Property Name="Date" Type="date" Nullable="false" />
-          <Property Name="Occasion" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="LeaveApplication">
           <Key>
@@ -408,7 +411,7 @@
           <Property Name="DOQ" Type="DateTime" Precision="0" />
           <Property Name="Address" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="BloodType" Type="String" MaxLength="5" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="IsManager" Type="String" MaxLength="1" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="IsManager" Type="String" Nullable="false" MaxLength="10" Unicode="false" FixedLength="true" />
           <NavigationProperty Name="AttendanceTransactions" Relationship="Self.AttendanceTransaction_Employee" FromRole="Employee" ToRole="AttendanceTransaction" />
           <NavigationProperty Name="Designation_History" Relationship="Self.Employee_Designation_Department_Employee" FromRole="Employee" ToRole="Designation_History" />
           <NavigationProperty Name="EmployeeLeaveAvaliabilities" Relationship="Self.EmployeeLeaveAvaliability_Employee" FromRole="Employee" ToRole="EmployeeLeaveAvaliability" />
@@ -718,8 +721,11 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Occasion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Day" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="Month" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="Year" Type="Int32" Nullable="false" />
           <Property Name="Date" Type="DateTime" Nullable="false" Precision="0" />
-          <Property Name="Occasion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -866,8 +872,11 @@
           <EntitySetMapping Name="Holidays">
             <EntityTypeMapping TypeName="PsiogModel.Holiday">
               <MappingFragment StoreEntitySet="Holidays">
-                <ScalarProperty Name="Occasion" ColumnName="Occasion" />
                 <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="Year" ColumnName="Year" />
+                <ScalarProperty Name="Month" ColumnName="Month" />
+                <ScalarProperty Name="Day" ColumnName="Day" />
+                <ScalarProperty Name="Occasion" ColumnName="Occasion" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

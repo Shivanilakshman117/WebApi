@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Script.Serialization;
 using WebApi.Helpers;
 using WebApi.Models;
 using WebApi.Utilities;
@@ -70,13 +71,32 @@ namespace WebApi.Controllers
         public HttpResponseMessage GetHolidaysList()
         {
             
-            Dictionary<DateTime, string> holidaysList;
+           
             PsiogEntities PE = new PsiogEntities();
-            holidaysList = (from hols in PE.Holidays
-                            select hols).ToDictionary(hols => hols.Date, hols => hols.Occasion);
-
+    
+            var holidaysList = (from hols in PE.Holidays
+                                orderby hols.Date
+                                select hols);
+           
+            //var json = new JavaScriptSerializer().Serialize(holidaysList);
             HttpResponseMessage response;
             response = Request.CreateResponse(HttpStatusCode.OK, holidaysList);
+            return response;
+        }
+
+        [HttpPost]
+        [Route("api/Values/GetManagersList")]
+        public HttpResponseMessage GetManagersList()
+        {
+            PsiogEntities PE = new PsiogEntities();
+           
+            var managersList = (from emp in PE.Employees
+                               join managers in PE.Managers
+                               on emp.EmployeeId equals managers.ManagerId
+                               select emp.Name).ToList();
+    
+            HttpResponseMessage response;
+            response = Request.CreateResponse(HttpStatusCode.OK, managersList);
             return response;
         }
 

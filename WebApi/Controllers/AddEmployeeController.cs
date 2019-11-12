@@ -18,20 +18,6 @@ namespace WebApi.Controllers
         [Route("api/AddEmployee/newemployee")]
         public IHttpActionResult AddEmployee(Employee newEmp)
         {
-           /* Employee newEmp = new Employee
-            {
-                EmployeeId = "P118",
-                Name = "test",
-                Gender = "Female",
-                Mobile = 9988774455,
-                Email = "test@psiog.com",
-                DOB = (DateTime.Now).Date,
-                DOJ = (DateTime.Now).Date,
-                Address = "abc",
-                BloodType = "A+",
-                IsManager = "1"
-            };*/
-
             if (DBOperations.AddEmployee(newEmp))
             {
                 if (DBOperations.AddUser(newEmp))
