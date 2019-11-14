@@ -20,7 +20,7 @@ namespace WebApi
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
-            config.Formatters.JsonFormatter.AddUriPathExtensionMapping("json", "application/json");
+            //config.Formatters.JsonFormatter.AddUriPathExtensionMapping("json", "application/json");
         }
     }
 }

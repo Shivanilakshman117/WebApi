@@ -30,12 +30,16 @@ namespace WebApi.Controllers
                             return Ok("Unable to add employee to managers table");
                         }
                     }
-                   
+                  
                     var resultOfLeaveAllocation = StoredProcsCall.AllocateLeave(newEmp.EmployeeId, newEmp.DOJ.Month);
                     if(!resultOfLeaveAllocation)
                     {
                         return Ok("Unable to set up leave allocation");
 
+                    }
+                    if (!DBOperations.AddReportingAuthorities(newEmp.EmployeeId, newEmp.managerName))
+                    {
+                        return Ok("Unable to set Reporting Authority!");
                     }
                     CompleteRegistration(newEmp);
                     return Ok("Associate has been added successfully!");
@@ -50,7 +54,7 @@ namespace WebApi.Controllers
             {
                 return Ok("Failed to add employee");
             }
-
+                
         }
         public void  CompleteRegistration(Employee newEmp)
         {

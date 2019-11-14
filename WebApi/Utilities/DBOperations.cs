@@ -57,6 +57,43 @@ namespace WebApi.Utilities
            
         }
 
+        public static bool AddReportingAuthorities(string empId,string authName)
+        {
+            try
+            {
+                using (PsiogEntities PE = new PsiogEntities())
+                {
+                    string authorityId = (from emp in PE.Employees
+                                       where emp.Name==authName
+                                       select emp.EmployeeId).FirstOrDefault();
+                    if (authorityId != null)
+                    {
+                        ReportingAuthority RA = new ReportingAuthority
+                        {
+                            EmployeeId = empId,
+                            ManagerId = authorityId
+                        };
+
+                        PE.ReportingAuthorities.Add(RA);
+                        PE.SaveChanges();
+                        return true;
+
+                    }
+                    else
+                    {
+                       return false;
+                    }
+                }
+            }
+            catch (Exception E)
+            {
+                ExceptionLog.Logger(E);
+      
+                return false;
+            }
+
+        }
+
         public static string ValidateLogin(string username, string password, out User user)
         {
             try
@@ -159,24 +196,24 @@ namespace WebApi.Utilities
                 return "You do not have enough leave balance";
             }
         }
-        public static decimal CheckBalance(LeaveApplication leave)
-            {
-            PsiogEntities PE = new PsiogEntities();
-            var leaveBalance = PE.EmployeeLeaveAvaliabilities.Where(emp => emp.EmployeeId == leave.EmployeeId && emp.LeaveTypeId == leave.LeaveId).FirstOrDefault();
+        /* public static EmployeeLeaveAvaliability CheckBalance(string employeeId)
+             {
+             PsiogEntities PE = new PsiogEntities();
+             EmployeeLeaveAvaliability leaveBalance = PE.EmployeeLeaveAvaliabilities.Where(emp => emp.EmployeeId == employeeId).FirstOrDefault();
+             return leaveBalance;
+             /*
+             decimal availedDays = (leave.ToDate.Subtract(leave.FromDate)).Days;
+             if (leave.FromSession == leave.ToSession)
+                 availedDays = availedDays + 0.5M;
+             decimal balance = leaveBalance.AllocatedDays - leaveBalance.AvailedDays;
+             return balance;
 
+         } */
 
-            decimal availedDays = (leave.ToDate.Subtract(leave.FromDate)).Days;
-            if (leave.FromSession == leave.ToSession)
-                availedDays = availedDays + 0.5M;
-            decimal balance = leaveBalance.AllocatedDays - leaveBalance.AvailedDays;
-            return balance;
-
-        }
-        
 
     }
-    
 
-   
+
+
 }
 

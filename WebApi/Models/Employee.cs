@@ -14,6 +14,10 @@ namespace WebApi.Models
     
     public partial class Employee
     {
+        public string managerName;
+    }
+    public partial class Employee
+    {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Employee()
         {
@@ -37,6 +41,7 @@ namespace WebApi.Models
         public string Address { get; set; }
         public string BloodType { get; set; }
         public string IsManager { get; set; }
+        public string IsAdmin { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<AttendanceTransaction> AttendanceTransactions { get; set; }

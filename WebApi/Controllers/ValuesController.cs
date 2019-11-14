@@ -15,11 +15,23 @@ namespace WebApi.Controllers
     {
         [HttpPost]
         [Route("api/Values/leavebalance")]
-        public IHttpActionResult Leavebalance(LeaveApplication leave)
+        public HttpResponseMessage Leavebalance(LeaveBalance lb)
         {
 
-            var balance = DBOperations.CheckBalance(leave);
-            return Ok(balance);
+            PsiogEntities PE = new PsiogEntities();
+
+            var balance = from l in PE.LeaveTypes join
+                          bal in PE.EmployeeLeaveAvaliabilities on
+                          l.LeaveTypeId equals bal.LeaveTypeId
+                          where bal.EmployeeId==lb.employeeId
+                          select new { l.Type, bal.AllocatedDays, bal.AvailedDays };
+
+
+             
+            //var json = new JavaScriptSerializer().Serialize(holidaysList);
+            HttpResponseMessage response;
+            response = Request.CreateResponse(HttpStatusCode.OK, balance);
+            return response;
         }
         [HttpPost]
         [Route("api/Values/GetSearchedEmployees")]
