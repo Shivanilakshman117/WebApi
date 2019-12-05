@@ -44,7 +44,9 @@ namespace WebApi
                         {
                             identity.AddClaim(new Claim("username", l.username));
                             identity.AddClaim(new Claim(ClaimTypes.Name, l.username));
+                            identity.AddClaim(new Claim(ClaimTypes.Sid, l.employeeid));
                             context.Validated(identity);
+                            break;
 
                         }
                         else
@@ -53,9 +55,6 @@ namespace WebApi
                         }
 
                     }
-
-
-
 
                 }
                 else
@@ -70,3 +69,4 @@ namespace WebApi
         }
     }
 }
+

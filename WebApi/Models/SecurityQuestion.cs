@@ -12,13 +12,9 @@ namespace WebApi.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class AttendanceTransaction
+    public partial class SecurityQuestion
     {
         public int Id { get; set; }
-        public string EmployeeId { get; set; }
-        public Nullable<System.TimeSpan> Checkin { get; set; }
-        public Nullable<System.TimeSpan> Checkout { get; set; }
-        public string Status { get; set; }
-        public Nullable<System.DateTime> Date { get; set; }
+        public string Question { get; set; }
     }
 }

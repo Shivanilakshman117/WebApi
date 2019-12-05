@@ -14,11 +14,12 @@ namespace WebApi.Controllers
 {
     public class AddEmployeeController : ApiController
     {
+        [Authorize]
         [HttpPost]
         [Route("api/AddEmployee/newemployee")]
         public IHttpActionResult AddEmployee(Employee newEmp)
         {
-            if (DBOperations.AddEmployee(newEmp))
+            if (DBOperations.AddEmployee(newEmp, out string msg))
             {
                 if (DBOperations.AddUser(newEmp))
                 {
@@ -52,7 +53,7 @@ namespace WebApi.Controllers
             }
             else
             {
-                return Ok("Failed to add employee");
+                return Ok(msg);
             }
                 
         }
@@ -61,10 +62,13 @@ namespace WebApi.Controllers
             using (PsiogEntities PE = new PsiogEntities())
             {
                 string VerificationCode = Guid.NewGuid().ToString();
-                var link = HttpContext.Current.Request.Url.AbsoluteUri + "/VerifyAccount/" + newEmp.EmployeeId;
-                var mail = ComposeMail.CompleteRegistration("techxems@gmail.com", VerificationCode, out SmtpClient messenger);
+                //var link = HttpContext.Current.Request.Url.AbsoluteUri + "/VerifyAccount?id=" + newEmp.EmployeeId;
+                string encodedId = Hasher.EncodeId(newEmp.EmployeeId);
+                var link = "http://localhost:4200/verify-employee/" + encodedId;
+                var mail = ComposeMail.CompleteRegistration(newEmp.EmployeeId,"techxems@gmail.com", VerificationCode, out SmtpClient messenger);
                 var account = PE.Users.Where(a => a.EmployeeId == newEmp.EmployeeId).FirstOrDefault();
-                account.VerificationCode = VerificationCode;
+               
+              
                 mail.Body += link + ">Click here to complete registration</a>";
                 messenger.Send(mail);
                 messenger.Dispose();

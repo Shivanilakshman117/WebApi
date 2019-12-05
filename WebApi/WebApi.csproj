@@ -155,9 +155,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\Approveleaves.cs" />
     <Compile Include="Helpers\ForgotPassword.cs" />
     <Compile Include="Helpers\LeaveBalance.cs" />
-    <Compile Include="Helpers\LoggedUser.cs" />
     <Compile Include="Helpers\Searcher.cs" />
     <Compile Include="Helpers\UpdatePassword.cs" />
     <Compile Include="Helpers\VerifyUser.cs" />
@@ -209,6 +209,9 @@
     <Compile Include="Models\ReportingAuthority.cs">
       <DependentUpon>DataModels.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\SecurityQuestion.cs">
+      <DependentUpon>DataModels.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\sysdiagram.cs">
       <DependentUpon>DataModels.tt</DependentUpon>
     </Compile>
@@ -221,7 +224,9 @@
     <Compile Include="Utilities\DBOperations.cs" />
     <Compile Include="Utilities\ExceptionLog.cs" />
     <Compile Include="Utilities\Hasher.cs" />
+    <Compile Include="Utilities\Requestor.cs" />
     <Compile Include="Utilities\StoredProcsCall.cs" />
+    <Compile Include="Utilities\UserSession.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
@@ -233,6 +238,7 @@
       <DependentUpon>DataModels.edmx</DependentUpon>
     </Content>
     <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

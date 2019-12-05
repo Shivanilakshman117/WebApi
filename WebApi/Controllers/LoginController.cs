@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mail;
 using System.Security.Claims;
-using System.Web;
+
 using System.Web.Http;
 using WebApi.Helpers;
 using WebApi.Models;
@@ -15,21 +15,23 @@ namespace WebApi.Controllers
 {
     public class LoginController : ApiController
     {
-        [AllowAnonymous]
-        [HttpGet]
-        [Route("api/login/forall")]
-        public IHttpActionResult Get()
-        {
-            return Ok("Restricted Access");
-        }
-
+       
         [Authorize]
         [HttpGet]
         [Route("api/login/authenticate")]
-        public IHttpActionResult GetAuthentication()
+        public HttpResponseMessage GetAuthentication() 
         {
             var identity = (ClaimsIdentity)User.Identity;
-            return Ok("Authentication Successful :" + identity.Name);
+            var sid = identity.Claims.Where(c => c.Type == ClaimTypes.Sid)
+                   .Select(c => c.Value).SingleOrDefault();
+            UserSession current = new UserSession
+            {
+                employeeId = sid,
+                name = identity.Name
+            };
+            HttpResponseMessage response;
+            response = Request.CreateResponse(HttpStatusCode.OK, current);
+            return response;
 
         }
 
@@ -51,7 +53,8 @@ namespace WebApi.Controllers
             using (PsiogEntities PE = new PsiogEntities())
             {
                 string VerificationCode = Guid.NewGuid().ToString();
-                var link = HttpContext.Current.Request.Url.AbsoluteUri +"/reset/" + resetter.employeeId;
+                string encodedId = Hasher.EncodeId(resetter.employeeId);
+                var link = "http://localhost:4200/verify-employee/" + Hasher.EncodeId(resetter.employeeId);
 
                 var result = PE.Users.Where(u => u.EmployeeId == resetter.employeeId).FirstOrDefault();
 
@@ -60,7 +63,16 @@ namespace WebApi.Controllers
                     if (string.Compare(result.Answer, resetter.answer) == 0)
                     {
                         var employee = PE.Employees.Where(u => u.EmployeeId == resetter.employeeId).FirstOrDefault();
-
+                        result.VerificationCode = VerificationCode;
+                        try
+                        {
+                            PE.SaveChanges();
+                        }
+                        catch(Exception E)
+                        {
+                            ExceptionLog.Logger(E);
+                            return Ok("Unable to get reset link");
+                        }
                         var mail = ComposeMail.SendResetLink(employee.Email, out SmtpClient messenger);
 
                         mail.Body += link + ">Click here to reset password</a>";
@@ -88,10 +100,13 @@ namespace WebApi.Controllers
 
         [HttpPost]
         [Route("api/login/forgotpassword/reset/{id=id}")]
-        public IHttpActionResult ResetPassword(string id, UpdatePassword pass)
+        public IHttpActionResult ResetPassword(string encodedId, VerifyUser verifyEmp)
         {
-            string message = DBOperations.ResetPassword(pass.password, id);
+            string id = Hasher.DecodeId(encodedId);
+            string message = DBOperations.VerifyUserAccount(id, verifyEmp);
             return Ok("Updated password successfully!");
         }
+       
+        
     }
 }

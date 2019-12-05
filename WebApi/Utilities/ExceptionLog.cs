@@ -11,8 +11,8 @@ namespace WebApi.Utilities
 
         public static void Logger(Exception Ex)
         {
-
-            string logfile = "C:\\Users\\Shivani.Lakshman\\Documents\\Impact Phase 2\\EmployeeManagementSystem\\MyLogFile.txt";
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string logfile = path + "\\MyLogFile.txt";
             if (!File.Exists(logfile))
             {
                 using (StreamWriter sw = File.CreateText(logfile))

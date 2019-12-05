@@ -10,10 +10,11 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="EmployeeId" Type="varchar" MaxLength="10" Nullable="false" />
-          <Property Name="Checkin" Type="datetime" Nullable="false" />
-          <Property Name="Checkout" Type="datetime" Nullable="false" />
-          <Property Name="Status" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="EmployeeId" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Date" Type="date" />
+          <Property Name="Checkin" Type="time" Precision="7" />
+          <Property Name="Checkout" Type="time" Precision="7" />
+          <Property Name="Status" Type="varchar" MaxLength="255" />
         </EntityType>
         <EntityType Name="Department">
           <Key>
@@ -46,6 +47,9 @@
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="EmployeeId" Type="varchar" MaxLength="10" Nullable="false" />
           <Property Name="Name" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Department" Type="varchar" MaxLength="50" />
+          <Property Name="Designation" Type="varchar" MaxLength="100" />
+          <Property Name="Image" Type="varchar(max)" />
           <Property Name="Gender" Type="varchar" MaxLength="10" Nullable="false" />
           <Property Name="Mobile" Type="bigint" />
           <Property Name="Email" Type="varchar" MaxLength="255" Nullable="false" />
@@ -56,6 +60,7 @@
           <Property Name="BloodType" Type="varchar" MaxLength="5" Nullable="false" />
           <Property Name="IsManager" Type="char" MaxLength="10" Nullable="false" />
           <Property Name="IsAdmin" Type="nchar" MaxLength="10" />
+          <Property Name="managerName" Type="varchar" MaxLength="255" />
         </EntityType>
         <EntityType Name="EmployeeLeaveAvaliability">
           <Key>
@@ -83,16 +88,16 @@
             <PropertyRef Name="LeaveApplicationId" />
           </Key>
           <Property Name="LeaveApplicationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="FromDate" Type="date" Nullable="false" />
-          <Property Name="ToDate" Type="date" Nullable="false" />
+          <Property Name="FromDate" Type="datetime" Nullable="false" />
+          <Property Name="ToDate" Type="datetime" Nullable="false" />
           <Property Name="FromSession" Type="smallint" Nullable="false" />
           <Property Name="ToSession" Type="smallint" Nullable="false" />
           <Property Name="Reason" Type="varchar" MaxLength="255" Nullable="false" />
           <Property Name="Status" Type="varchar" MaxLength="10" Nullable="false" />
           <Property Name="EmployeeId" Type="varchar" MaxLength="10" Nullable="false" />
           <Property Name="LeaveId" Type="int" Nullable="false" />
-          <Property Name="SendTo" Type="varchar" MaxLength="10" Nullable="false" />
-          <Property Name="CCTo" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="SendTo" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="CCTo" Type="varchar" MaxLength="255" />
         </EntityType>
         <EntityType Name="LeaveTypes">
           <Key>
@@ -117,6 +122,16 @@
           <Property Name="EmployeeId" Type="varchar" MaxLength="10" Nullable="false" />
           <Property Name="ManagerId" Type="varchar" MaxLength="10" Nullable="false" />
         </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'Psiog.dbo.SecurityQuestions' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="SecurityQuestions">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="Question" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Question" Type="varchar" MaxLength="100" Nullable="false" />
+        </EntityType>
         <EntityType Name="sysdiagrams">
           <Key>
             <PropertyRef Name="diagram_id" />
@@ -139,18 +154,6 @@
           <Property Name="Answer" Type="varchar" MaxLength="255" />
           <Property Name="VerificationCode" Type="varchar(max)" />
         </EntityType>
-        <Association Name="AttendanceTransaction_Employee">
-          <End Role="Employee" Type="Self.Employee" Multiplicity="1" />
-          <End Role="AttendanceTransaction" Type="Self.AttendanceTransaction" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Employee">
-              <PropertyRef Name="EmployeeId" />
-            </Principal>
-            <Dependent Role="AttendanceTransaction">
-              <PropertyRef Name="EmployeeId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="Employee_Designation_Department_Department">
           <End Role="Department" Type="Self.Department" Multiplicity="1" />
           <End Role="Designation_History" Type="Self.Designation_History" Multiplicity="*" />
@@ -304,10 +307,12 @@
           <EntitySet Name="ReportingAuthority" EntityType="Self.ReportingAuthority" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="AttendanceTransaction_Employee" Association="Self.AttendanceTransaction_Employee">
-            <End Role="Employee" EntitySet="Employee" />
-            <End Role="AttendanceTransaction" EntitySet="AttendanceTransaction" />
-          </AssociationSet>
+          <EntitySet Name="SecurityQuestions" EntityType="Self.SecurityQuestions" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [SecurityQuestions].[Id] AS [Id], 
+    [SecurityQuestions].[Question] AS [Question]
+    FROM [dbo].[SecurityQuestions] AS [SecurityQuestions]</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="Employee_Designation_Department_Department" Association="Self.Employee_Designation_Department_Department">
             <End Role="Department" EntitySet="Department" />
             <End Role="Designation_History" EntitySet="Designation_History" />
@@ -357,17 +362,6 @@
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="PsiogModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="AttendanceTransaction">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="EmployeeId" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="Checkin" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Checkout" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Status" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
-          <NavigationProperty Name="Employee" Relationship="Self.AttendanceTransaction_Employee" FromRole="AttendanceTransaction" ToRole="Employee" />
-        </EntityType>
         <EntityType Name="Department">
           <Key>
             <PropertyRef Name="Id" />
@@ -413,7 +407,6 @@
           <Property Name="Address" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="BloodType" Type="String" MaxLength="5" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="IsManager" Type="String" Nullable="false" MaxLength="10" Unicode="false" FixedLength="true" />
-          <NavigationProperty Name="AttendanceTransactions" Relationship="Self.AttendanceTransaction_Employee" FromRole="Employee" ToRole="AttendanceTransaction" />
           <NavigationProperty Name="Designation_History" Relationship="Self.Employee_Designation_Department_Employee" FromRole="Employee" ToRole="Designation_History" />
           <NavigationProperty Name="EmployeeLeaveAvaliabilities" Relationship="Self.EmployeeLeaveAvaliability_Employee" FromRole="Employee" ToRole="EmployeeLeaveAvaliability" />
           <NavigationProperty Name="LeaveApplications" Relationship="Self.LeaveApplication_Employee" FromRole="Employee" ToRole="LeaveApplication" />
@@ -421,6 +414,10 @@
           <NavigationProperty Name="Users" Relationship="Self.User_Employee" FromRole="Employee" ToRole="User" />
           <NavigationProperty Name="Manager" Relationship="PsiogModel.Managers_Employee" FromRole="Employee" ToRole="Manager" />
           <Property Name="IsAdmin" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+          <Property Name="managerName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Department" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Designation" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Image" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="EmployeeLeaveAvaliability">
           <Key>
@@ -439,8 +436,8 @@
             <PropertyRef Name="LeaveApplicationId" />
           </Key>
           <Property Name="LeaveApplicationId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="FromDate" Type="DateTime" Nullable="false" Precision="0" />
-          <Property Name="ToDate" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="FromDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ToDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="FromSession" Type="Int16" Nullable="false" />
           <Property Name="ToSession" Type="Int16" Nullable="false" />
           <Property Name="Reason" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
@@ -449,8 +446,8 @@
           <Property Name="LeaveId" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Employee" Relationship="Self.LeaveApplication_Employee" FromRole="LeaveApplication" ToRole="Employee" />
           <NavigationProperty Name="LeaveType" Relationship="Self.LeaveApplication_Leave" FromRole="LeaveApplication" ToRole="LeaveTypes" />
-          <Property Name="SendTo" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="CCTo" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="SendTo" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="CCTo" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="LeaveType">
           <Key>
@@ -495,18 +492,6 @@
           <NavigationProperty Name="Employee" Relationship="Self.User_Employee" FromRole="User" ToRole="Employee" />
           <Property Name="VerificationCode" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
         </EntityType>
-        <Association Name="AttendanceTransaction_Employee">
-          <End Role="Employee" Type="Self.Employee" Multiplicity="1" />
-          <End Role="AttendanceTransaction" Type="Self.AttendanceTransaction" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Employee">
-              <PropertyRef Name="EmployeeId" />
-            </Principal>
-            <Dependent Role="AttendanceTransaction">
-              <PropertyRef Name="EmployeeId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="Employee_Designation_Department_Department">
           <End Role="Department" Type="Self.Department" Multiplicity="1" />
           <End Role="Designation_History" Type="Self.Designation_History" Multiplicity="*" />
@@ -616,7 +601,6 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="PsiogEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="AttendanceTransactions" EntityType="Self.AttendanceTransaction" />
           <EntitySet Name="Departments" EntityType="Self.Department" />
           <EntitySet Name="Designations" EntityType="Self.Designation" />
           <EntitySet Name="Designation_History" EntityType="Self.Designation_History" />
@@ -627,10 +611,6 @@
           <EntitySet Name="ReportingAuthorities" EntityType="Self.ReportingAuthority" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagram" />
           <EntitySet Name="Users" EntityType="Self.User" />
-          <AssociationSet Name="AttendanceTransaction_Employee" Association="Self.AttendanceTransaction_Employee">
-            <End Role="Employee" EntitySet="Employees" />
-            <End Role="AttendanceTransaction" EntitySet="AttendanceTransactions" />
-          </AssociationSet>
           <AssociationSet Name="Employee_Designation_Department_Department" Association="Self.Employee_Designation_Department_Department">
             <End Role="Department" EntitySet="Departments" />
             <End Role="Designation_History" EntitySet="Designation_History" />
@@ -684,6 +664,8 @@
             <End Role="ReportingAuthority" EntitySet="ReportingAuthorities" />
           </AssociationSet>
           <EntitySet Name="Holidays" EntityType="PsiogModel.Holiday" />
+          <EntitySet Name="AttendanceTransactions" EntityType="PsiogModel.AttendanceTransaction" />
+          <EntitySet Name="SecurityQuestions" EntityType="PsiogModel.SecurityQuestion" />
         </EntityContainer>
         <EntityType Name="Manager">
           <Key>
@@ -729,23 +711,31 @@
           <Property Name="Year" Type="Int32" Nullable="false" />
           <Property Name="Date" Type="DateTime" Nullable="false" Precision="0" />
         </EntityType>
+        <EntityType Name="AttendanceTransaction">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EmployeeId" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Checkin" Type="Time" Precision="7" />
+          <Property Name="Checkout" Type="Time" Precision="7" />
+          <Property Name="Status" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Date" Type="DateTime" Precision="0" />
+        </EntityType>
+        <EntityType Name="SecurityQuestion">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="Question" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Question" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="PsiogModelStoreContainer" CdmEntityContainer="PsiogEntities">
-          <EntitySetMapping Name="AttendanceTransactions">
-            <EntityTypeMapping TypeName="PsiogModel.AttendanceTransaction">
-              <MappingFragment StoreEntitySet="AttendanceTransaction">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="EmployeeId" ColumnName="EmployeeId" />
-                <ScalarProperty Name="Checkin" ColumnName="Checkin" />
-                <ScalarProperty Name="Checkout" ColumnName="Checkout" />
-                <ScalarProperty Name="Status" ColumnName="Status" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Departments">
             <EntityTypeMapping TypeName="PsiogModel.Department">
               <MappingFragment StoreEntitySet="Department">
@@ -776,6 +766,10 @@
           <EntitySetMapping Name="Employees">
             <EntityTypeMapping TypeName="PsiogModel.Employee">
               <MappingFragment StoreEntitySet="Employee">
+                <ScalarProperty Name="Image" ColumnName="Image" />
+                <ScalarProperty Name="Designation" ColumnName="Designation" />
+                <ScalarProperty Name="Department" ColumnName="Department" />
+                <ScalarProperty Name="managerName" ColumnName="managerName" />
                 <ScalarProperty Name="IsAdmin" ColumnName="IsAdmin" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="EmployeeId" ColumnName="EmployeeId" />
@@ -880,6 +874,26 @@
                 <ScalarProperty Name="Month" ColumnName="Month" />
                 <ScalarProperty Name="Day" ColumnName="Day" />
                 <ScalarProperty Name="Occasion" ColumnName="Occasion" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AttendanceTransactions">
+            <EntityTypeMapping TypeName="PsiogModel.AttendanceTransaction">
+              <MappingFragment StoreEntitySet="AttendanceTransaction">
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Checkout" ColumnName="Checkout" />
+                <ScalarProperty Name="Checkin" ColumnName="Checkin" />
+                <ScalarProperty Name="EmployeeId" ColumnName="EmployeeId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SecurityQuestions">
+            <EntityTypeMapping TypeName="PsiogModel.SecurityQuestion">
+              <MappingFragment StoreEntitySet="SecurityQuestions">
+                <ScalarProperty Name="Question" ColumnName="Question" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

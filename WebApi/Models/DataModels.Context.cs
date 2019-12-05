@@ -27,7 +27,6 @@ namespace WebApi.Models
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<AttendanceTransaction> AttendanceTransactions { get; set; }
         public virtual DbSet<Department> Departments { get; set; }
         public virtual DbSet<Designation> Designations { get; set; }
         public virtual DbSet<Designation_History> Designation_History { get; set; }
@@ -40,6 +39,8 @@ namespace WebApi.Models
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Manager> Managers { get; set; }
         public virtual DbSet<Holiday> Holidays { get; set; }
+        public virtual DbSet<AttendanceTransaction> AttendanceTransactions { get; set; }
+        public virtual DbSet<SecurityQuestion> SecurityQuestions { get; set; }
     
         public virtual int ManagersSetUpProcess(string employeeId)
         {

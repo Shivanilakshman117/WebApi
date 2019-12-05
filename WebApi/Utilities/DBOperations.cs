@@ -11,14 +11,21 @@ namespace WebApi.Utilities
     public class DBOperations
     {
 
-        public static bool AddEmployee(Employee e)
+        public static bool AddEmployee(Employee e, out string msg)
         {
+            msg = "";
+            
             try
             {
                 using (PsiogEntities PE = new PsiogEntities())
                 {
-
-                    var max = PE.Employees.Max(m=>m.Id);
+                    var check = PE.Employees.Where(c => c.Email == e.Email).FirstOrDefault();
+                    if(check!=null)
+                    {
+                        msg = "Email ID already exists!";
+                        return false;
+                    }
+                    var max = PE.Employees.Max(m=>m.Id) + 1;
                     e.EmployeeId = "P" + max.ToString();
                     PE.Employees.Add(e);
 
@@ -28,6 +35,7 @@ namespace WebApi.Utilities
             catch (Exception E)
             {
                 ExceptionLog.Logger(E);
+                msg = "Failed to add employee";
                 return false;
             }
            
@@ -43,6 +51,7 @@ namespace WebApi.Utilities
                     {   EmployeeId = e.EmployeeId,
                         Password = Hasher.HashString(Guid.NewGuid().ToString()),
                         Role = "User",
+                        VerificationCode = Guid.NewGuid().ToString(),
                     };
 
                     PE.Users.Add(newUser);
@@ -59,38 +68,42 @@ namespace WebApi.Utilities
 
         public static bool AddReportingAuthorities(string empId,string authName)
         {
-            try
+            if (authName != null)
             {
-                using (PsiogEntities PE = new PsiogEntities())
+                try
                 {
-                    string authorityId = (from emp in PE.Employees
-                                       where emp.Name==authName
-                                       select emp.EmployeeId).FirstOrDefault();
-                    if (authorityId != null)
+                    using (PsiogEntities PE = new PsiogEntities())
                     {
-                        ReportingAuthority RA = new ReportingAuthority
+                        string authorityId = (from emp in PE.Employees
+                                              where emp.Name == authName
+                                              select emp.EmployeeId).FirstOrDefault();
+                        if (authorityId != null)
                         {
-                            EmployeeId = empId,
-                            ManagerId = authorityId
-                        };
+                            ReportingAuthority RA = new ReportingAuthority
+                            {
+                                EmployeeId = empId,
+                                ManagerId = authorityId
+                            };
 
-                        PE.ReportingAuthorities.Add(RA);
-                        PE.SaveChanges();
-                        return true;
+                            PE.ReportingAuthorities.Add(RA);
+                            PE.SaveChanges();
+                            return true;
 
-                    }
-                    else
-                    {
-                       return false;
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
                 }
+                catch (Exception E)
+                {
+                    ExceptionLog.Logger(E);
+
+                    return false;
+                }
             }
-            catch (Exception E)
-            {
-                ExceptionLog.Logger(E);
-      
-                return false;
-            }
+            return true;
 
         }
 
@@ -131,84 +144,112 @@ namespace WebApi.Utilities
 
         }
 
-        public static string VerifyUserAccount(string id, VerifyUser verifyEmp)
+        public static string VerifyUserAccount(string encodedId, VerifyUser verifyEmp)
         {
-            PsiogEntities PE = new PsiogEntities();
+            using (PsiogEntities PE = new PsiogEntities())
+            {
+                var id = Hasher.DecodeId(encodedId);
+                var user = PE.Users.Where(u => u.EmployeeId == id).FirstOrDefault();
+                if (user.VerificationCode == null)
+                {
+                    return "Unauthorised!";
+                }
+                user.Password = Hasher.HashString(verifyEmp.password);
+                user.SecurityQuestion = verifyEmp.securityQuestion;
+                user.Answer = verifyEmp.answer;
+                user.VerificationCode = null;
+                try
+                {
 
-            var user = PE.Users.Where(u => u.EmployeeId == id).FirstOrDefault();
-            user.Password = Hasher.HashString(verifyEmp.password);
-            user.SecurityQuestion = verifyEmp.securityQuestion;
-            user.Answer = verifyEmp.answer;
-            try
-            {
-                
-                PE.SaveChanges();
-                return "Verified Successfully!";
-            }
-            catch (Exception E)
-            {
-                ExceptionLog.Logger(E);
-                return "Unable to verify user";
+                    PE.SaveChanges();
+                    return "Verified Successfully!";
+                }
+                catch (Exception E)
+                {
+                    ExceptionLog.Logger(E);
+                    return "Unable to verify user";
+                }
             }
         }
 
         public static string ResetPassword(string password,string id)
         {
-            PsiogEntities PE = new PsiogEntities();
+            using (PsiogEntities PE = new PsiogEntities())
+            {
+                var user = PE.Users.Where(u => u.EmployeeId == id).FirstOrDefault();
+                user.Password = Hasher.HashString(password);
 
-            var user = PE.Users.Where(u => u.EmployeeId == id).FirstOrDefault();
-            user.Password = Hasher.HashString(password);
-          
-            try
-            {
-               
-                PE.SaveChanges();
-                return "Updated password successfully";
-            }
-            catch (Exception E)
-            {
-                ExceptionLog.Logger(E);
-                return "Unable to update password. Please try again";
+                try
+                {
+
+                    PE.SaveChanges();
+                    return "Updated password successfully";
+                }
+                catch (Exception E)
+                {
+                    ExceptionLog.Logger(E);
+                    return "Unable to update password. Please try again";
+                }
             }
         }
 
-        public static string ApplyLeave(LeaveApplication leave)
+        public static string ApplyLeave(LeaveApplication leave, string id)
         {
-            PsiogEntities PE = new PsiogEntities();
-            var leaveBalance = PE.EmployeeLeaveAvaliabilities.Where(emp => emp.EmployeeId == leave.EmployeeId && emp.LeaveTypeId == leave.LeaveId).FirstOrDefault();
 
-
-            decimal availedDays = (leave.ToDate.Subtract(leave.FromDate)).Days;
-            if (leave.FromSession == leave.ToSession)
-                availedDays = availedDays + 0.5M;
-            decimal balance = leaveBalance.AllocatedDays - leaveBalance.AvailedDays;
-            if (availedDays <= balance)
+            using (PsiogEntities PE = new PsiogEntities())
             {
-                leave.Status = "Applied";
-                PE.LeaveApplications.Add(leave);
-                leaveBalance.AvailedDays = availedDays;
-                PE.SaveChanges();
-                return "Leave Application Submitted! Waiting For Approval";
-            }
+                try
+                {
+                    var leaveBalance = PE.EmployeeLeaveAvaliabilities.Where(emp => emp.EmployeeId == id && emp.LeaveTypeId == leave.LeaveId).FirstOrDefault();
 
-            else
-            {
-                return "You do not have enough leave balance";
+
+                    decimal availedDays = (leave.ToDate.Subtract(leave.FromDate)).Days;
+                    if (leave.FromSession == leave.ToSession)
+                        availedDays = availedDays + 0.5M;
+                    decimal balance = leaveBalance.AllocatedDays - leaveBalance.AvailedDays;
+                    if (availedDays <= balance)
+                    {
+                        try
+                        {
+                            var l = new LeaveApplication();
+                            leave.Status = "Applied";
+                            l.Status = leave.Status;
+                            l.FromDate = leave.FromDate;
+                            l.ToDate = leave.ToDate;
+                            l.FromSession = leave.FromSession;
+                            l.ToSession = leave.ToSession;
+                            l.Reason = leave.Reason;
+                            l.LeaveId = leave.LeaveId;
+                            l.SendTo = leave.SendTo;
+                            l.EmployeeId = id;
+
+
+                            PE.LeaveApplications.Add(l);
+                            leaveBalance.AvailedDays = availedDays;
+                            PE.SaveChanges();
+                            return "Leave Application Submitted! Waiting For Approval";
+                        }
+                        catch (Exception E)
+                        {
+                            ExceptionLog.Logger(E);
+                            return "Unable to apply leave";
+                        }
+                    }
+
+                    else
+                    {
+                        return "You do not have enough leave balance";
+                    }
+                }
+                catch(Exception E)
+                {
+                    ExceptionLog.Logger(E);
+                    return "Unable to apply leave. Please try again";
+
+                }
             }
         }
-        /* public static EmployeeLeaveAvaliability CheckBalance(string employeeId)
-             {
-             PsiogEntities PE = new PsiogEntities();
-             EmployeeLeaveAvaliability leaveBalance = PE.EmployeeLeaveAvaliabilities.Where(emp => emp.EmployeeId == employeeId).FirstOrDefault();
-             return leaveBalance;
-             /*
-             decimal availedDays = (leave.ToDate.Subtract(leave.FromDate)).Days;
-             if (leave.FromSession == leave.ToSession)
-                 availedDays = availedDays + 0.5M;
-             decimal balance = leaveBalance.AllocatedDays - leaveBalance.AvailedDays;
-             return balance;
 
-         } */
 
 
     }

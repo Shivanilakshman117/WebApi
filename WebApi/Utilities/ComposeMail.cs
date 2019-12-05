@@ -9,7 +9,7 @@ namespace WebApi.Utilities
 {
     public class ComposeMail
     {
-        public static MailMessage CompleteRegistration(string emailID, string code, out SmtpClient messenger)
+        public static MailMessage CompleteRegistration(string employeeId,string emailID, string code, out SmtpClient messenger)
         {
             var fromEmail = new MailAddress("techxems@gmail.com", "EMS Portal");
             var toEmail = new MailAddress(emailID);
@@ -17,7 +17,7 @@ namespace WebApi.Utilities
             string subject = "";
             string body = "";
             subject = "Welcome Aboard!";
-            body = "Dear Associate,<br/><br/>\nWe are delighted to welcome you on board with us! Please complete the registration for our Employee Management System Portal by following the link given below. The link will expire in 1 day." +
+            body = "Dear Associate,<br/><br/>\nWe are delighted to welcome you on board with us! Please complete the registration for our Employee Management System Portal by following the link given below.Your Employee Id is " + employeeId +
                     "<br/><br/><a href=";
 
             messenger = new SmtpClient

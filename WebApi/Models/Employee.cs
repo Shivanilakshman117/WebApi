@@ -14,14 +14,9 @@ namespace WebApi.Models
     
     public partial class Employee
     {
-        public string managerName;
-    }
-    public partial class Employee
-    {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Employee()
         {
-            this.AttendanceTransactions = new HashSet<AttendanceTransaction>();
             this.Designation_History = new HashSet<Designation_History>();
             this.EmployeeLeaveAvaliabilities = new HashSet<EmployeeLeaveAvaliability>();
             this.LeaveApplications = new HashSet<LeaveApplication>();
@@ -42,9 +37,11 @@ namespace WebApi.Models
         public string BloodType { get; set; }
         public string IsManager { get; set; }
         public string IsAdmin { get; set; }
+        public string managerName { get; set; }
+        public string Department { get; set; }
+        public string Designation { get; set; }
+        public string Image { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<AttendanceTransaction> AttendanceTransactions { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Designation_History> Designation_History { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
